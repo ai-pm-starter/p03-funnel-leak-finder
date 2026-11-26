@@ -1,0 +1,6 @@
+id,segment,step,keep,why
+E1,country=Canada,view_item,0.7,"Top-of-funnel leak in a big single segment: 30% fewer visits reach a product page"
+E2,device=mobile & channel=paid,add_to_cart,0.5,"Small pair segment (1,216 sessions entering): half as many add to cart"
+E3,country=India,begin_checkout,0.6,"Mid-funnel leak in one country: 40% fewer start checkout"
+E4,visitor=returning & channel=referral,add_payment_info,0.6,"Leak in a high-value segment that normally converts well: 40% fewer reach payment"
+E5,device=desktop & channel=direct,purchase,0.7,"Last-step leak: 30% fewer complete the purchase after payment info"

@@ -83,7 +83,8 @@ def generate(data: dict, model: str | None = None, api_key: str | None = None, r
     """Call Gemini once for all top leaks. Returns {'report', 'unverified', 'seconds', 'model'}.
 
     On 'overloaded' (503) or a bad JSON reply it retries with 10 s, then 20 s waits, then tries the fallback
-    model. Quota errors (429) are not retried: the free daily limit won't come back within seconds.
+    model. A quota error (429) on the main model goes straight to the fallback (separate quota); a 429 on
+    the fallback is raised: the free daily limit will not come back within seconds.
     """
     from google import genai
     from google.genai import errors, types
@@ -102,7 +103,10 @@ def generate(data: dict, model: str | None = None, api_key: str | None = None, r
                 report = json.loads(resp.text)
                 return {"report": report, "unverified": unverified_numbers(report, data),
                         "seconds": round(time.time() - t0, 1), "model": m}
-            except errors.ClientError:                 # 4xx: quota, bad key, bad request → no point retrying
+            except errors.ClientError as e:            # 4xx: no point retrying the same model
+                if getattr(e, "code", None) == 429 and m != fallback:
+                    last = e                           # this model's daily quota is used up: try the fallback,
+                    break                              # which has its own quota
                 raise
             except Exception as e:                     # overloaded (503), timeout, network, bad JSON → retry
                 last = e

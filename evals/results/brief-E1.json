@@ -1,0 +1,264 @@
+{
+ "input": {
+  "shop": "Google Merchandise Store (Google's online shop for branded merchandise), GA4 sample data, revenue in USD",
+  "date_range": "2020-11-01 to 2021-01-31",
+  "funnel": [
+   {
+    "step": "visit",
+    "sessions": "360,129"
+   },
+   {
+    "step": "view item",
+    "sessions": "75,552",
+    "of_previous_step": "21.0%"
+   },
+   {
+    "step": "add to cart",
+    "sessions": "19,894",
+    "of_previous_step": "26.3%"
+   },
+   {
+    "step": "checkout",
+    "sessions": "10,872",
+    "of_previous_step": "54.6%"
+   },
+   {
+    "step": "payment info",
+    "sessions": "6,662",
+    "of_previous_step": "61.3%"
+   },
+   {
+    "step": "purchase",
+    "sessions": "4,740",
+    "of_previous_step": "71.1%"
+   }
+  ],
+  "leaks": [
+   {
+    "id": "L1",
+    "segment": "new",
+    "segment_type": "visitor",
+    "step": "checkout → payment info",
+    "segment_conversion": "44.0%",
+    "rest_of_shop_conversion": "81.5%",
+    "sessions_entering_step": "5,854",
+    "segment_share_of_all_visits": "72.5%",
+    "lost_purchases": "1,488",
+    "lost_revenue": "$101.0k"
+   },
+   {
+    "id": "L2",
+    "segment": "new",
+    "segment_type": "visitor",
+    "step": "view item → add to cart",
+    "segment_conversion": "22.3%",
+    "rest_of_shop_conversion": "34.7%",
+    "sessions_entering_step": "51,048",
+    "segment_share_of_all_visits": "72.5%",
+    "lost_purchases": "967",
+    "lost_revenue": "$65.6k"
+   },
+   {
+    "id": "L3",
+    "segment": "new",
+    "segment_type": "visitor",
+    "step": "visit → view item",
+    "segment_conversion": "19.5%",
+    "rest_of_shop_conversion": "24.8%",
+    "sessions_entering_step": "261,238",
+    "segment_share_of_all_visits": "72.5%",
+    "lost_purchases": "468",
+    "lost_revenue": "$31.7k"
+   },
+   {
+    "id": "L4",
+    "segment": "new",
+    "segment_type": "visitor",
+    "step": "add to cart → checkout",
+    "segment_conversion": "51.4%",
+    "rest_of_shop_conversion": "59.0%",
+    "sessions_entering_step": "11,394",
+    "segment_share_of_all_visits": "72.5%",
+    "lost_purchases": "260",
+    "lost_revenue": "$17.6k"
+   },
+   {
+    "id": "L5",
+    "segment": "organic",
+    "segment_type": "channel",
+    "step": "checkout → payment info",
+    "segment_conversion": "56.8%",
+    "rest_of_shop_conversion": "63.3%",
+    "sessions_entering_step": "3,346",
+    "segment_share_of_all_visits": "34.1%",
+    "lost_purchases": "151",
+    "lost_revenue": "$11.6k"
+   }
+  ]
+ },
+ "result": {
+  "report": {
+   "summary": "Prioritize addressing the checkout friction for new visitors (L1) and the product discovery gap (L2), as these represent the largest revenue opportunities. Focus on simplifying the checkout flow and improving product page relevance for first-time users to capture the $101.0k and $65.6k in lost revenue respectively.",
+   "leaks": [
+    {
+     "id": "L1",
+     "headline": "New visitors convert at 44.0% in checkout to payment info, significantly lower than the 81.5% shop average.",
+     "what_is_happening": "New visitors are dropping off at the payment info step at a much higher rate than the rest of the shop, resulting in 1,488 lost purchases and $101.0k in lost revenue.",
+     "likely_causes": [
+      {
+       "cause": "Forced account creation",
+       "why_plausible": "New visitors may be deterred by a mandatory registration wall before they can enter payment details."
+      },
+      {
+       "cause": "Unexpected shipping costs",
+       "why_plausible": "Shipping fees revealed only at the payment stage often cause new users to abandon their carts immediately."
+      }
+     ],
+     "what_to_check": [
+      "Review session recordings for users dropping off at the payment info step.",
+      "Verify if the checkout flow requires account creation for new users."
+     ],
+     "experiments": [
+      {
+       "name": "Guest Checkout Implementation",
+       "hypothesis": "If we enable guest checkout, then conversion will increase because new users can complete purchases without account friction.",
+       "metric": "checkout → payment info conversion"
+      }
+     ],
+     "confidence": {
+      "level": "high",
+      "reason": "This is the highest revenue impact leak and involves a critical stage in the funnel."
+     },
+     "caveat": "Part of this gap is due to lower intent among new visitors compared to returning ones, so the lost revenue is an upper bound."
+    },
+    {
+     "id": "L2",
+     "headline": "New visitors convert at 22.3% from view item to add to cart, trailing the 34.7% shop average.",
+     "what_is_happening": "New visitors are struggling to move from viewing items to adding them to their cart, leading to 967 lost purchases and $65.6k in lost revenue.",
+     "likely_causes": [
+      {
+       "cause": "Unclear product information",
+       "why_plausible": "New visitors may lack sufficient details on sizing or specifications to feel confident in adding items to their cart."
+      },
+      {
+       "cause": "Slow page load speed",
+       "why_plausible": "High bounce rates on product pages for new visitors often correlate with slow mobile load times."
+      }
+     ],
+     "what_to_check": [
+      "Check page load speed reports for product pages segmented by new visitors.",
+      "Review heatmaps on product pages to see if users are scrolling to key information."
+     ],
+     "experiments": [
+      {
+       "name": "Product Page Content Optimization",
+       "hypothesis": "If we highlight key product specs and sizing guides, then conversion will increase because new users will have the information needed to purchase.",
+       "metric": "view item → add to cart conversion"
+      }
+     ],
+     "confidence": {
+      "level": "medium",
+      "reason": "High revenue impact, but requires careful content testing to ensure it resonates with new users."
+     },
+     "caveat": "New visitors may be browsing without immediate purchase intent, making the lost revenue an upper bound."
+    },
+    {
+     "id": "L3",
+     "headline": "New visitors convert at 19.5% from visit to view item, lower than the 24.8% shop average.",
+     "what_is_happening": "New visitors are failing to engage with products after arriving, resulting in 468 lost purchases and $31.7k in lost revenue.",
+     "likely_causes": [
+      {
+       "cause": "Poor landing page relevance",
+       "why_plausible": "New visitors arriving from ads may not see the products they expected, leading to immediate exit."
+      },
+      {
+       "cause": "Navigation complexity",
+       "why_plausible": "New users may find the site navigation confusing and fail to reach a product page."
+      }
+     ],
+     "what_to_check": [
+      "Analyze landing page bounce rates for new visitors.",
+      "Review navigation click-through rates in session recordings."
+     ],
+     "experiments": [
+      {
+       "name": "Landing Page Personalization",
+       "hypothesis": "If we align landing page content with ad messaging, then conversion will increase because users will find the products they are looking for.",
+       "metric": "visit → view item conversion"
+      }
+     ],
+     "confidence": {
+      "level": "medium",
+      "reason": "Significant volume of sessions, but impact is lower than checkout-related leaks."
+     },
+     "caveat": "New visitors often have lower intent, so the lost revenue is an upper bound."
+    },
+    {
+     "id": "L4",
+     "headline": "New visitors convert at 51.4% from add to cart to checkout, below the 59.0% shop average.",
+     "what_is_happening": "New visitors are dropping off between adding items to their cart and starting the checkout process, causing 260 lost purchases and $17.6k in lost revenue.",
+     "likely_causes": [
+      {
+       "cause": "Cart page friction",
+       "why_plausible": "New visitors may find the cart page confusing or lack clear calls to action to proceed to checkout."
+      },
+      {
+       "cause": "Lack of trust signals",
+       "why_plausible": "New visitors may hesitate to proceed to checkout if they don't see clear security or return policy information."
+      }
+     ],
+     "what_to_check": [
+      "Review cart page session recordings for new visitors.",
+      "Check if trust badges are visible on the cart page."
+     ],
+     "experiments": [
+      {
+       "name": "Cart Page CTA Optimization",
+       "hypothesis": "If we make the 'Proceed to Checkout' button more prominent, then conversion will increase because users will be guided to the next step.",
+       "metric": "add to cart → checkout conversion"
+      }
+     ],
+     "confidence": {
+      "level": "low",
+      "reason": "Lower revenue impact compared to other leaks in the funnel."
+     },
+     "caveat": "New visitors may be using the cart as a wishlist, so the lost revenue is an upper bound."
+    },
+    {
+     "id": "L5",
+     "headline": "Organic visitors convert at 56.8% in checkout to payment info, trailing the 63.3% shop average.",
+     "what_is_happening": "Organic visitors are dropping off at the payment info step, resulting in 151 lost purchases and $11.6k in lost revenue.",
+     "likely_causes": [
+      {
+       "cause": "Missing payment methods",
+       "why_plausible": "Organic visitors may expect specific payment options that are not clearly displayed until the payment step."
+      },
+      {
+       "cause": "Technical errors on specific browsers",
+       "why_plausible": "Organic traffic often comes from diverse browsers where payment forms might not render correctly."
+      }
+     ],
+     "what_to_check": [
+      "Check for browser-specific errors in the payment step.",
+      "Review the list of available payment methods against user feedback."
+     ],
+     "experiments": [
+      {
+       "name": "Payment Method Visibility",
+       "hypothesis": "If we display payment icons earlier in the checkout flow, then conversion will increase because users will know their preferred method is supported.",
+       "metric": "checkout → payment info conversion"
+      }
+     ],
+     "confidence": {
+      "level": "low",
+      "reason": "Smallest revenue impact among identified leaks."
+     },
+     "caveat": "None"
+    }
+   ]
+  },
+  "unverified": [],
+  "seconds": 47.1,
+  "model": "gemini-3.1-flash-lite"
+ }
+}
