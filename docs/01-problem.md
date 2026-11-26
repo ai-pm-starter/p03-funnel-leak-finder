@@ -25,7 +25,7 @@ A **Streamlit web app** over the public **Google Merchandise Store GA4 dataset**
 ## Success metrics
 | Metric | Target | How measured |
 |---|---|---|
-| Finds real leaks | ≥ 4 of 5 **planted** leaks in the top 5 | Eval: copies of the data with known leaks added (P3-07) |
+| Finds real leaks | ≥ 4 of 5 **planted** leaks found and ranked **#1 among new leaks** (changed from "in the top 5" on Nov 26: real leaks in the data are bigger) | Eval: copies of the data with known leaks added (P3-07) |
 | No made-up numbers | 0 numbers in the AI report that don't match the data | Eval: check every number in the report against the leak table |
 | Useful report | ≥ 4/5 average on a rubric (specific, grounded, testable experiment) | PM scores the report for 10 leaks (P3-07) |
 | Speed | Report on screen in < 30 s | Timed in the app |

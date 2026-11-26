@@ -24,10 +24,10 @@ Run: `python evals/run_eval.py` (recall, no AI) · `python evals/run_eval.py --b
 ## Metrics and pass bar
 | Metric | Definition | Pass bar | Result |
 |---|---|---|---|
-| Planted leaks in the top 5 | planted segment × step ranked 1–5 | ≥ 4/5 | **2/5 ✗** |
+| **Planted leak found and ranked #1 among new leaks** | the exact planted segment × step is flagged, and no other leak that wasn't already in the real data ranks above it | ≥ 4/5 | **3/5 ✗** |
 | Planted leaks found | anywhere in the leak list, exact segment | (diagnostic) | 4/5 |
 | … or at parent level | a parent segment flagged at the right step | (diagnostic) | 5/5 |
-| #1 among new leaks | the planted leak is the top leak that isn't already in the real data | (diagnostic) | 3/5 |
+| Planted leaks in the top 5 | ranked 1–5 overall (the old bar) | (diagnostic) | 2/5 |
 | False alarms | new leaks unrelated to the planted one | 0 | **0 ✓** |
 | Made-up numbers | numbers in briefs not in the input | 0 | **0 ✓** (5 briefs so far) |
 | Brief quality | average PM rubric score | ≥ 4/5 | pending |
@@ -50,12 +50,15 @@ Run: `python evals/run_eval.py` (recall, no AI) · `python evals/run_eval.py --b
 
 **Brief number check:** 5 briefs so far (real data × 2, E1, E2, E4), **0 unverified numbers**. E3 and E5 hit the free daily quota (429) and run again after the reset (about 08:00 GMT). That run also uses a fix found here: a 429 on the main model now goes straight to the fallback model, which has its own quota.
 
-## Decisions for the PM
-- **Top-5 bar:** keep it (and count it as a fail), or change it to "found, and #1 among leaks that aren't already in the data". The second measures detection without penalising the tool for real leaks being bigger.
-- **Pair vs parent rule (E4):** improve in v2, e.g. compare a pair with its parent's *other* members within the same visitor type, or show "referral, mostly returning visitors".
+## Decisions
+- **Nov 26, 2026, PM: changed the main bar** from "planted leak in the top 5" to "**found, and #1 among new leaks**". The old bar penalised the tool for the real new-visitor leaks being bigger than the planted ones, which is correct ranking, not a miss. The new bar measures whether a fresh leak is detected and put first among fresh leaks. The old bar stays as a diagnostic.
+- **Result under the new bar: 3/5, still below 4/5.** The two misses are real weaknesses:
+  - **E2 (mobile × paid):** found, but #2 among new leaks, behind a side effect of the plant. Small segments with little revenue rank low.
+  - **E4 (returning × referral):** only found at parent level (pair vs parent rule).
+- **Next (v2):** improve the pair vs parent rule, e.g. compare a pair with its parent's *other* members within the same visitor type, or show "referral, mostly returning visitors". Then rerun.
 
 ## Results log
 | Date | Prompt/model version | Score | Notes |
 |---|---|---|---|
-| Nov 26, 2026 | leak finder v1 (depth 2) | top-5 2/5 · found 4/5 (+1 parent) · 0 false alarms | 5 planted leaks, binomial thinning, seed 7 |
+| Nov 26, 2026 | leak finder v1 (depth 2) | **#1 among new 3/5** · found 4/5 (+1 parent) · top-5 2/5 · 0 false alarms | 5 planted leaks, binomial thinning, seed 7 |
 | Nov 26, 2026 | prompt v1 · gemini-3.6-flash / 3.1-flash-lite | 0 made-up numbers in 5 briefs | E3, E5 pending (quota) · rubric pending |
