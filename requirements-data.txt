@@ -1,0 +1,4 @@
+# Only needed on the laptop to rebuild data/ from BigQuery (P3-03). The hosted app doesn't use it.
+-r requirements.txt
+google-cloud-bigquery>=3.27
+db-dtypes>=1.3
