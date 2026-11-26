@@ -43,3 +43,34 @@ Overall about **1.6%** of sessions end in a purchase. Every purchase has revenue
 **Obfuscation to handle:** 21% of events have channel `<Other>` (14%) or `(data deleted)` (7%). These become their own "unknown" segment, not dropped. Small values are grouped by Google, so the long tail of countries is thin.
 
 **Query cost:** exploring scanned about **1.2 GB** in total. The sandbox allows 1,000 GB a month free, so building the P3-03 tables a few times uses well under 1% of it.
+
+## Funnel tables (P3-03)
+Built Nov 26, 2026 by `scripts/build_data.py` from `sql/funnel_daily.sql` (scans 1.17 GB). The app only reads the output, so it needs no Google login.
+
+**Output:** `data/funnel_daily.csv`: 20,874 rows, 1.3 MB. One row per **day × device × country × channel × visitor** with the number of sessions that reached each step and the revenue.
+
+| Column | Meaning |
+|---|---|
+| `day` | session date (first event) |
+| `device` | desktop, mobile, tablet |
+| `country` | top 10 countries by sessions; the rest are `Other` |
+| `channel` | first-touch medium: organic, direct, referral, paid (cpc), other, unknown (`<Other>`, `(data deleted)`) |
+| `visitor` | new (first session) or returning |
+| `sessions` … `purchase` | sessions that reached each step |
+| `purchase_events`, `revenue_usd` | purchases and revenue in those sessions |
+
+**How a session "reaches" a step:** it fired that event **or any later one**. So the funnel only ever narrows, and a purchase still counts when GA4 skipped an earlier event in the same session (for example, the item was added to the cart in an earlier session).
+
+**Cross-check against direct queries:** sessions 360,129 ✓ · purchase events 5,692 ✓ · revenue $362,165 ✓.
+
+| Step | Sessions reached | Of previous step |
+|---|---|---|
+| session_start | 360,129 | |
+| view_item | 77,318 | 21.5% |
+| add_to_cart | 20,338 | 26.3% |
+| begin_checkout | 11,112 | 54.6% |
+| add_shipping_info | 11,111 | 100% |
+| add_payment_info | 6,818 | 61.4% |
+| purchase | 4,848 | 71.1% |
+
+**Data quirk:** in this shop, `begin_checkout` and `add_shipping_info` fire together (11,104 of 11,107 sessions with either have both). So the leak finder treats them as **one step, "checkout"**, giving 6 steps: session → view item → add to cart → checkout → payment → purchase. Otherwise a step with 100% conversion would hide real leaks.

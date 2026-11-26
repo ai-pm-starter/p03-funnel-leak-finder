@@ -32,3 +32,11 @@ cp .env.example .env   # add your keys
 pip install -r requirements.txt
 streamlit run app/app.py
 ```
+
+**Rebuild the data (optional, laptop only):** the app reads `data/funnel_daily.csv`, which is already in the repo. To rebuild it from BigQuery you need a free Google Cloud project in the BigQuery sandbox (no card):
+```bash
+pip install -r requirements-data.txt
+gcloud auth application-default login   # sign in with Google; stays on your laptop
+# set GCP_PROJECT in .env
+python scripts/build_data.py            # scans about 1.2 GB of the 1 TB free monthly quota
+```
