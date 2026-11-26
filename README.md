@@ -28,9 +28,9 @@ Python · Streamlit · Google Gemini (free tier) · [Google Merchandise Store GA
 
 ## Run locally
 ```bash
-cp .env.example .env   # add your keys
+cp .env.example .env   # add your Gemini key (optional: without it, everything but the AI brief works)
 pip install -r requirements.txt
-streamlit run app/app.py
+streamlit run app/app.py   # opens http://localhost:8501
 ```
 
 **Rebuild the data (optional, laptop only):** the app reads `data/funnel_daily.csv`, which is already in the repo. To rebuild it from BigQuery you need a free Google Cloud project in the BigQuery sandbox (no card):

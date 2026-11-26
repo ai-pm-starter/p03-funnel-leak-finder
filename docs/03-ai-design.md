@@ -138,3 +138,23 @@ Built Nov 26, 2026 by `scripts/build_data.py` from `sql/funnel_daily.sql` (scans
 - **Second run (same day):** `gemini-3.6-flash` was overloaded on all 3 tries, so the fallback `gemini-3.1-flash-lite` answered: **41 s in total, 0 unverified numbers**, same top causes for L1 and the intent caveat. Saved as `evals/reports/v1-all-dates-fallback.json`. (A first fallback choice, `gemini-3-flash-preview`, no longer exists on the API, so it returned 404.)
 - **What this means for the app:** Gemini's free tier is unreliable at busy times. The app (P3-06) should show a **saved report** for the default date range instantly and call Gemini only for other ranges, with a clear message while it waits.
 - Weak spots for v2: only 1 experiment per leak (the prompt allows 1–2), and the summary ranks purely by lost revenue instead of weighing confidence.
+
+## App (P3-06)
+`app/app.py`, run with `streamlit run app/app.py`.
+
+**Layout:** sidebar with date range and a "segment pairs" switch → 4 KPIs (sessions, sessions with a purchase, conversion, revenue) → funnel chart and step table → ranked leak table → AI brief (summary, then one expandable card per leak: what's happening, likely causes, what to check, experiments, confidence, caveat).
+
+**AI brief, quota-friendly:**
+- **Default view** (all 92 days, pairs on): shows a **saved** brief from `data/saved_report.json` instantly, with no Gemini call. It is only used when the leak table matches exactly what it was generated from.
+- **Any other view:** a "Generate AI brief" button makes one Gemini call. Results are cached for 24 h, so repeating a view is free.
+- Shows the model and the time taken. Shows a warning listing any number in the brief that isn't in the data.
+
+**Clear messages instead of errors:**
+- Fewer than 5,000 sessions in the range → "pick at least a week".
+- No leaks → says so.
+- No Gemini key → leak table works, brief is off.
+- Gemini busy or out of quota → "try again later".
+
+**Key:** read from Streamlit secrets when hosted (P3-09), from `.env` on the laptop.
+
+**Tests** (`tests/test_app.py`, Streamlit AppTest, no Gemini calls): default view shows the KPIs and the saved brief with 5 cards · a one-day range shows the warning · another month shows the button instead of the saved brief. With the leak tests: **7 passing**.
