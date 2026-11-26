@@ -86,11 +86,11 @@ Built Nov 26, 2026 by `scripts/build_data.py` from `sql/funnel_daily.sql` (scans
 1. **Compare** the segment's step conversion with the **rest of the shop** (everyone not in the segment).
 2. **Test** with a one-sided two-proportion z-test: is the segment worse? With hundreds of segment × step tests, some look bad by chance, so p-values are corrected with **Benjamini–Hochberg** (false discovery rate 5%).
 3. **Filter:** at least **300 sessions** entering the step, at least **10% worse** (relative) than the rest, q < 0.05.
-4. **Drop repeats:** a pair like `desktop × new` is dropped if it converts about the same as its leaking parent `new` (it must be at least 10% worse than every leaking parent to be shown).
+4. **Drop repeats:** see "Pair rule" below.
 5. **Size it:** lost sessions = sessions entering × (rest's rate − segment's rate). Lost purchases = lost sessions × the segment's own rate from that step to purchase. Lost revenue = lost purchases × the segment's revenue per buyer. The shop's averages are used when the segment has fewer than 30 sessions downstream.
 6. **Rank** by lost revenue.
 
-**Real data, all 92 days (depth 2): 13 leaks.** Top 5:
+**Real data, all 92 days (depth 2): 8 leaks** (13 before the pair rule changed on Nov 26; the top 5 didn't change). Top 5:
 
 | # | Segment | Step | Segment | Rest | Lost revenue |
 |---|---|---|---|---|---|
@@ -158,3 +158,13 @@ Built Nov 26, 2026 by `scripts/build_data.py` from `sql/funnel_daily.sql` (scans
 **Key:** read from Streamlit secrets when hosted (P3-09), from `.env` on the laptop.
 
 **Tests** (`tests/test_app.py`, Streamlit AppTest, no Gemini calls): default view shows the KPIs and the saved brief with 5 cards · a one-day range shows the warning · another month shows the button instead of the saved brief. With the leak tests: **7 passing**.
+
+### Pair rule (changed Nov 26, 2026, after the P3-07 eval)
+A pair such as `mobile × referral` is shown only if it converts **at least 10% worse than its two parents predict**:
+
+predicted = parent A's rate × parent B's rate ÷ the shop's rate (at that step)
+
+- `desktop × new` at checkout → payment: new 44%, desktop about 65%, shop 61% → predicted about 47%; actual 43.5% → just the new-visitor leak again → **dropped**.
+- `referral × returning` with a planted drop: predicted about 59%; actual 49% → something extra is going on in this pair → **kept**.
+
+The first rule compared a pair only with a *leaking* parent. It dropped `referral × returning` because referral traffic is mostly new visitors and converts badly anyway, so the pair looked "no worse than its parent". Effect on the real data: 13 → 8 leaks. Six noisy pairs went (e.g. `desktop × organic`, `Italy × new`) and one real combination came in (`referral × new` at checkout → payment, 42.7% vs a predicted rate well above it). The top 5 and the saved AI brief stayed the same.

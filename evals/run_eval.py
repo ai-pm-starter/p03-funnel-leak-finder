@@ -18,7 +18,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "app"))
-from leaks import STEP_NAMES, STEPS, find_leaks, funnel, load  # noqa: E402
+from leaks import DIMENSIONS, STEP_NAMES, STEPS, find_leaks, funnel, load  # noqa: E402
 
 sys.path.insert(0, str(ROOT / "evals"))
 from plant import plant  # noqa: E402
@@ -29,7 +29,7 @@ STEP_LABEL = {s: STEP_NAMES[s] for s in STEPS}
 
 def parse_segment(spec: str):
     parts = dict(p.strip().split("=") for p in spec.split("&"))
-    label = " × ".join(parts.values())
+    label = " × ".join(parts[d] for d in DIMENSIONS if d in parts)   # same order as the leak finder
     return parts, label
 
 

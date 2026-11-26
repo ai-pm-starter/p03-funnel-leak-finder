@@ -1,6 +1,6 @@
 # Evals
 
-P3-07 · Nov 26, 2026 · status: **partial** (2 briefs and the PM rubric scores still to do)
+P3-07 · Nov 26, 2026 · status: **partial** (2 briefs and the PM rubric scores still to do) · recall bar **passed** with leak finder v2
 
 ## Eval set
 **Planted leaks** (`evals/planted_leaks.csv`): 5 scenarios. Each takes the real 92-day funnel table and plants ONE known leak in a copy, so the planted leak has to compete with the real ones, as it would in a real shop. One leak per funnel step, a mix of single segments and pairs, from small (1,216 sessions) to large (26,824):
@@ -24,16 +24,15 @@ Run: `python evals/run_eval.py` (recall, no AI) · `python evals/run_eval.py --b
 ## Metrics and pass bar
 | Metric | Definition | Pass bar | Result |
 |---|---|---|---|
-| **Planted leak found and ranked #1 among new leaks** | the exact planted segment × step is flagged, and no other leak that wasn't already in the real data ranks above it | ≥ 4/5 | **3/5 ✗** |
-| Planted leaks found | anywhere in the leak list, exact segment | (diagnostic) | 4/5 |
-| … or at parent level | a parent segment flagged at the right step | (diagnostic) | 5/5 |
-| Planted leaks in the top 5 | ranked 1–5 overall (the old bar) | (diagnostic) | 2/5 |
-| False alarms | new leaks unrelated to the planted one | 0 | **0 ✓** |
+| **Planted leak found and ranked #1 among new leaks** | the exact planted segment × step is flagged, and no other leak that wasn't already in the real data ranks above it | ≥ 4/5 | v1: 3/5 ✗ · **v2: 4/5 ✓** |
+| Planted leaks found | anywhere in the leak list, exact segment | (diagnostic) | v1: 4/5 (+1 parent) · **v2: 5/5** |
+| Planted leaks in the top 5 | ranked 1–5 overall (the old bar) | (diagnostic) | 2/5 · 2/5 |
+| False alarms | new leaks unrelated to the planted one | 0 | v1: 0 ✓ · **v2: 1 ✗** |
 | Made-up numbers | numbers in briefs not in the input | 0 | **0 ✓** (5 briefs so far) |
 | Brief quality | average PM rubric score | ≥ 4/5 | pending |
 
 ## Results
-**Leak finder recall** (`evals/results/recall.csv`):
+**Leak finder v1 recall** (first run, pair rule v1):
 
 | Id | Found | Rank | Segment vs rest | Lost revenue | Note |
 |---|---|---|---|---|---|
@@ -50,15 +49,30 @@ Run: `python evals/run_eval.py` (recall, no AI) · `python evals/run_eval.py --b
 
 **Brief number check:** 5 briefs so far (real data × 2, E1, E2, E4), **0 unverified numbers**. E3 and E5 hit the free daily quota (429) and run again after the reset (about 08:00 GMT). That run also uses a fix found here: a 429 on the main model now goes straight to the fallback model, which has its own quota.
 
+**Leak finder v2 recall** (`evals/results/recall.csv`, new pair rule, see `docs/03-ai-design.md`):
+
+| Id | Found | Rank | Among new leaks | Segment vs rest | Lost revenue |
+|---|---|---|---|---|---|
+| E1 Canada · visit → view item | ✓ | 6 | **#1** | 15.3% vs 21.4% | $9.1k |
+| E2 mobile × paid · view item → add to cart | ✓ | 8 | **#1** | 12.5% vs 26.3% | $1.7k |
+| E3 India · add to cart → checkout | ✓ | 5 | **#1** | 32.2% vs 54.7% | $14.4k |
+| E4 referral × returning · checkout → payment info | ✓ | 7 | #3 | 49.2% vs 58.5% | $7.0k |
+| E5 desktop × direct · payment info → purchase | ✓ | 5 | **#1** | 49.3% vs 71.1% | $14.3k |
+
+- **E4** is now found at the exact segment. It ranks behind its parent `referral` (which the plant also pulls down) and one false alarm.
+- **False alarm:** `unknown × new` at checkout → payment info appears in E4 only. It is borderline on the real data, and the plant shifts the shop's average at that step enough to push it over. Logged, not tuned away.
+- **Eval bug fixed:** the eval wrote E4's pair as "returning × referral" while the finder names pairs in a fixed order ("referral × returning"), so a correct find would not have matched. Labels now use the finder's order. Under pair rule v1 the pair was missing anyway, so the v1 result stands.
+
 ## Decisions
 - **Nov 26, 2026, PM: changed the main bar** from "planted leak in the top 5" to "**found, and #1 among new leaks**". The old bar penalised the tool for the real new-visitor leaks being bigger than the planted ones, which is correct ranking, not a miss. The new bar measures whether a fresh leak is detected and put first among fresh leaks. The old bar stays as a diagnostic.
 - **Result under the new bar: 3/5, still below 4/5.** The two misses are real weaknesses:
   - **E2 (mobile × paid):** found, but #2 among new leaks, behind a side effect of the plant. Small segments with little revenue rank low.
   - **E4 (returning × referral):** only found at parent level (pair vs parent rule).
-- **Next (v2):** improve the pair vs parent rule, e.g. compare a pair with its parent's *other* members within the same visitor type, or show "referral, mostly returning visitors". Then rerun.
+- **Nov 26, 2026, PM: improve the pair rule** → leak finder v2 compares a pair with what *both* parents predict. Result: **4/5 ✓**, 5/5 found exactly, 1 false alarm.
 
 ## Results log
 | Date | Prompt/model version | Score | Notes |
 |---|---|---|---|
 | Nov 26, 2026 | leak finder v1 (depth 2) | **#1 among new 3/5** · found 4/5 (+1 parent) · top-5 2/5 · 0 false alarms | 5 planted leaks, binomial thinning, seed 7 |
+| Nov 26, 2026 | leak finder v2 (pair rule: predicted from both parents) | **#1 among new 4/5 ✓** · found 5/5 · top-5 2/5 · 1 false alarm | same 5 planted leaks, seed 7 |
 | Nov 26, 2026 | prompt v1 · gemini-3.6-flash / 3.1-flash-lite | 0 made-up numbers in 5 briefs | E3, E5 pending (quota) · rubric pending |

@@ -1,6 +1,6 @@
 id,planted,keep,found,rank,found_as_parent,parent_rank,in_top5,rank_among_new_leaks,related_leaks,unrelated_new_leaks,conv_segment,conv_rest,lost_revenue_usd
-E1,Canada · visit → view item,0.7,True,6.0,False,,False,1.0,0,0,0.153,0.214,9084.0
-E2,mobile × paid · view item → add to cart,0.5,True,9.0,False,7.0,False,2.0,1,0,0.125,0.263,1659.0
-E3,India · add to cart → checkout,0.6,True,5.0,False,,True,1.0,0,0,0.322,0.547,14351.0
-E4,returning × referral · checkout → payment info,0.6,False,,True,5.0,False,,1,0,,,
-E5,desktop × direct · payment info → purchase,0.7,True,5.0,False,6.0,True,1.0,2,0,0.493,0.711,14348.0
+E1,Canada · visit → view item,0.7,True,6,False,,False,1,0,0,0.153,0.214,9084
+E2,mobile × paid · view item → add to cart,0.5,True,8,False,7.0,False,1,0,0,0.125,0.263,1659
+E3,India · add to cart → checkout,0.6,True,5,False,,True,1,0,0,0.322,0.547,14351
+E4,referral × returning · checkout → payment info,0.6,True,7,False,5.0,False,3,1,1,0.492,0.585,7034
+E5,desktop × direct · payment info → purchase,0.7,True,5,False,6.0,True,1,1,0,0.493,0.711,14348

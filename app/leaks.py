@@ -69,26 +69,40 @@ def _segments(df: pd.DataFrame, depth: int) -> pd.DataFrame:
     return pd.concat(frames, ignore_index=True)
 
 
-PARENT_MARGIN = 0.10  # a pair (e.g. mobile × new) must convert 10% worse than its leaking parent to be shown
+PAIR_MARGIN = 0.10  # a pair must convert 10% worse than its parents predict to be shown
 
 
-def _drop_explained_by_parent(leaks: pd.DataFrame) -> pd.DataFrame:
-    """Drop pair segments that only repeat a single-segment leak at the same step.
+def expected_pair_conv(conv_a: float, conv_b: float, conv_shop: float) -> float:
+    """What a pair A × B should convert at if A and B each just scale the shop's rate (no extra effect).
 
-    'desktop × new' leaking at checkout is not news if 'new' leaks there and desktop × new converts about the
-    same as new. Keep the pair only if it converts clearly worse than every leaking parent.
+    e.g. returning 78%, referral 47%, shop 61% → returning × referral ≈ 78% × 47% / 61% ≈ 60%.
     """
-    single = leaks[~leaks["dimension"].str.contains("×")]
-    parent_conv = {(r.segment, r.step_to): r.conv_segment for r in single.itertuples()}
-    keep = []
+    return conv_a * conv_b / conv_shop if conv_shop else np.nan
+
+
+def _drop_explained_by_parents(leaks: pd.DataFrame, all_rows: pd.DataFrame, shop_conv: dict) -> pd.DataFrame:
+    """Drop pair segments that only repeat what their two parent segments already explain.
+
+    'desktop × new' at checkout: new 44%, desktop 65%, shop 61% predict about 47%; it converts at 43.5%, so it is
+    just the new-visitor leak again → dropped. 'returning × referral' with a planted drop: predicted about 60%,
+    converts at 49% → something extra happens in this pair → kept. Comparing with both parents (not just a
+    leaking one) avoids dropping a pair because one parent is itself pulled down by an unrelated group.
+    """
+    single = all_rows[~all_rows["dimension"].str.contains("×")]
+    conv = {(r.segment, r.step_to): r.conv_segment for r in single.itertuples()}
+    keep, expected = [], []
     for r in leaks.itertuples():
         if "×" not in r.dimension:
             keep.append(True)
+            expected.append(np.nan)
             continue
-        parents = [parent_conv.get((p, r.step_to)) for p in r.segment.split(" × ")]
-        parents = [c for c in parents if c is not None]
-        keep.append(all(r.conv_segment < c * (1 - PARENT_MARGIN) for c in parents))
-    return leaks[pd.Series(keep, index=leaks.index, dtype=bool)]
+        a, b = r.segment.split(" × ")
+        e = expected_pair_conv(conv.get((a, r.step_to), np.nan), conv.get((b, r.step_to), np.nan),
+                               shop_conv[r.step_to])
+        expected.append(e)
+        keep.append(bool(np.isfinite(e) and r.conv_segment < e * (1 - PAIR_MARGIN)))
+    out = leaks.assign(conv_expected_from_parents=expected)
+    return out[pd.Series(keep, index=out.index, dtype=bool)]
 
 
 def find_leaks(df: pd.DataFrame, depth: int = 1, min_sessions: int = MIN_SESSIONS,
@@ -132,7 +146,8 @@ def find_leaks(df: pd.DataFrame, depth: int = 1, min_sessions: int = MIN_SESSION
     keep = (res["sessions_in"] >= min_sessions) & (res["rel_gap"] >= min_rel_gap) & (res["q_value"] < alpha)
     out = res[keep]
     if depth > 1:
-        out = _drop_explained_by_parent(out)
+        shop_conv = {STEP_NAMES[STEPS[k]]: total[STEPS[k]] / total[STEPS[k - 1]] for k in range(1, len(STEPS))}
+        out = _drop_explained_by_parents(out, res, shop_conv)
     out = out.sort_values("lost_revenue_usd", ascending=False).reset_index(drop=True)
     out.index = out.index + 1
     out.index.name = "rank"
