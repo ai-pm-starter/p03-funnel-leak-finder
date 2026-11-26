@@ -1,4 +1,5 @@
-# Only needed on the laptop to rebuild data/ from BigQuery (P3-03). The hosted app doesn't use it.
+# Laptop only: rebuild data/ from BigQuery (P3-03) and run tests. The hosted app does not need these.
 -r requirements.txt
 google-cloud-bigquery>=3.27
 db-dtypes>=1.3
+pytest>=8

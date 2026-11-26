@@ -74,3 +74,41 @@ Built Nov 26, 2026 by `scripts/build_data.py` from `sql/funnel_daily.sql` (scans
 | purchase | 4,848 | 71.1% |
 
 **Data quirk:** in this shop, `begin_checkout` and `add_shipping_info` fire together (11,104 of 11,107 sessions with either have both). So the leak finder treats them as **one step, "checkout"**, giving 6 steps: session → view item → add to cart → checkout → payment → purchase. Otherwise a step with 100% conversion would hide real leaks.
+
+## Leak finder (P3-04)
+`app/leaks.py`. Statistics only, no AI. Run `python app/leaks.py` to print the funnel and the top leaks.
+
+**Steps:** visit → view item → add to cart → checkout → payment info → purchase (checkout = `begin_checkout`, which always comes with `add_shipping_info`).
+
+**Segments:** each value of device, country, channel and visitor (depth 1), and pairs of them, e.g. `mobile × referral` (depth 2, the default in the app).
+
+**For each segment × step:**
+1. **Compare** the segment's step conversion with the **rest of the shop** (everyone not in the segment).
+2. **Test** with a one-sided two-proportion z-test: is the segment worse? With hundreds of segment × step tests, some look bad by chance, so p-values are corrected with **Benjamini–Hochberg** (false discovery rate 5%).
+3. **Filter:** at least **300 sessions** entering the step, at least **10% worse** (relative) than the rest, q < 0.05.
+4. **Drop repeats:** a pair like `desktop × new` is dropped if it converts about the same as its leaking parent `new` (it must be at least 10% worse than every leaking parent to be shown).
+5. **Size it:** lost sessions = sessions entering × (rest's rate − segment's rate). Lost purchases = lost sessions × the segment's own rate from that step to purchase. Lost revenue = lost purchases × the segment's revenue per buyer. The shop's averages are used when the segment has fewer than 30 sessions downstream.
+6. **Rank** by lost revenue.
+
+**Real data, all 92 days (depth 2): 13 leaks.** Top 5:
+
+| # | Segment | Step | Segment | Rest | Lost revenue |
+|---|---|---|---|---|---|
+| 1 | new visitors | checkout → payment info | 43.9% | 81.7% | $104.6k |
+| 2 | new visitors | view item → add to cart | 22.3% | 34.7% | $67.5k |
+| 3 | new visitors | visit → view item | 20.0% | 25.4% | $32.7k |
+| 4 | new visitors | add to cart → checkout | 51.3% | 59.1% | $18.4k |
+| 5 | organic | checkout → payment info | 56.8% | 63.4% | $12.0k |
+
+**How to read this:** returning visitors always convert better than new ones, so part of the "new visitor" gap is intent, not a broken page. The lost revenue is an upper bound. The checkout → payment gap (44% vs 82%) is still large and worth a look, for example a sign-in or account step at checkout that new visitors hit for the first time. The P3-05 report must say this, not just repeat the number.
+
+**Tests** (`tests/test_leaks.py`, `python -m pytest -q`, 4 passing):
+- The funnel matches the totals and only ever narrows.
+- **A planted leak is found:** cutting `mobile × referral` payment conversion by 40% puts it at **#3**, right after two real new-visitor leaks.
+- Uniform data (every segment the same) gives no leaks.
+- Tiny segments (Taiwan × tablet) are ignored even with a huge planted drop.
+
+**Known limits:**
+- Segments are compared with the rest of the shop, not controlled for each other. A leak in `mobile` can partly be a leak in a country with many mobile users.
+- When a pair leaks, its parents (`mobile`, `referral`) can also show up lower down, because they contain the pair.
+- Revenue is in USD, as in the dataset.
