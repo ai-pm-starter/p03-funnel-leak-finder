@@ -19,7 +19,7 @@ Dashboards show that conversion is low, not where people leave, for whom, or wha
 Architecture diagram + 3–5 bullets.
 
 ## Key product decisions
-Links to `docs/decisions/`.
+- **The app reads summary tables, not live BigQuery:** no Google credentials on the public demo, no risk to the free quota, faster, and evals are reproducible. See [ADR-001](docs/decisions/ADR-001-summary-tables-vs-live-bigquery.md).
 
 ## Limitations & what's next
 

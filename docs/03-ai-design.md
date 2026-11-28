@@ -47,6 +47,8 @@ Overall about **1.6%** of sessions end in a purchase. Every purchase has revenue
 ## Funnel tables (P3-03)
 Built Nov 26, 2026 by `scripts/build_data.py` from `sql/funnel_daily.sql` (scans 1.17 GB). The app only reads the output, so it needs no Google login.
 
+**Why tables and not live queries:** [ADR-001](decisions/ADR-001-summary-tables-vs-live-bigquery.md).
+
 **Output:** `data/funnel_daily.csv`: 20,874 rows, 1.3 MB. One row per **day × device × country × channel × visitor** with the number of sessions that reached each step and the revenue.
 
 | Column | Meaning |
