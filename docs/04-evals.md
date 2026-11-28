@@ -1,6 +1,6 @@
 # Evals
 
-P3-07 · Nov 26, 2026 · status: **partial** (2 briefs and the PM rubric scores still to do) · recall bar **passed** with leak finder v2
+P3-07 · Nov 26, 2026 · status: **partial** (PM rubric scores still to do) · recall bar **passed** with leak finder v2
 
 ## Eval set
 **Planted leaks** (`evals/planted_leaks.csv`): 5 scenarios. Each takes the real 92-day funnel table and plants ONE known leak in a copy, so the planted leak has to compete with the real ones, as it would in a real shop. One leak per funnel step, a mix of single segments and pairs, from small (1,216 sessions) to large (26,824):
@@ -28,7 +28,7 @@ Run: `python evals/run_eval.py` (recall, no AI) · `python evals/run_eval.py --b
 | Planted leaks found | anywhere in the leak list, exact segment | (diagnostic) | v1: 4/5 (+1 parent) · **v2: 5/5** |
 | Planted leaks in the top 5 | ranked 1–5 overall (the old bar) | (diagnostic) | 2/5 · 2/5 |
 | False alarms | new leaks unrelated to the planted one | 0 | v1: 0 ✓ · **v2: 1 ✗** |
-| Made-up numbers | numbers in briefs not in the input | 0 | **0 ✓** (5 briefs so far) |
+| Made-up numbers | numbers in briefs not in the input | 0 | **0 ✓** (7 briefs, 35 leak cards) |
 | Brief quality | average PM rubric score | ≥ 4/5 | pending |
 
 ## Results
@@ -47,7 +47,9 @@ Run: `python evals/run_eval.py` (recall, no AI) · `python evals/run_eval.py --b
 2. **The top-5 bar fails because the real "new visitor" leaks are bigger.** They are worth $18k–$105k each, so a planted leak worth $9k–$14k ranks 5th–9th. The ranking by lost revenue is doing its job; the bar assumed a shop without big existing leaks.
 3. **Weak spot, pair vs parent (E4):** returning × referral, after the planted drop, converts about like all referral traffic (which is mostly new visitors), so the "drop repeats" rule keeps the parent *referral* and drops the more precise pair. The leak is still found at the right step, but less specifically.
 
-**Brief number check:** 5 briefs so far (real data × 2, E1, E2, E4), **0 unverified numbers**. E3 and E5 hit the free daily quota (429) and run again after the reset (about 08:00 GMT). That run also uses a fix found here: a 429 on the main model now goes straight to the fallback model, which has its own quota.
+**Brief number check: 7 briefs, 0 unverified numbers.** Real data × 2 (Nov 26), E1, E2, E4 (Nov 26, leak finder v1, gemini-3.1-flash-lite after 3.6 was overloaded), E3 and E5 (Nov 28, leak finder v2, gemini-3.6-flash, 70–89 s). E3 and E5 first hit the free daily quota (429) on Nov 26; that led to a fix: a 429 on the main model now goes straight to the fallback model, which has its own quota.
+
+**Rubric sheet:** `evals/rubric.csv` has **8 distinct leak briefs** (2 planted, 5 real, 1 scenario leak). E1 and E2's planted leaks rank below 5th, so the app doesn't brief them.
 
 **Leak finder v2 recall** (`evals/results/recall.csv`, new pair rule, see `docs/03-ai-design.md`):
 
@@ -75,4 +77,4 @@ Run: `python evals/run_eval.py` (recall, no AI) · `python evals/run_eval.py --b
 |---|---|---|---|
 | Nov 26, 2026 | leak finder v1 (depth 2) | **#1 among new 3/5** · found 4/5 (+1 parent) · top-5 2/5 · 0 false alarms | 5 planted leaks, binomial thinning, seed 7 |
 | Nov 26, 2026 | leak finder v2 (pair rule: predicted from both parents) | **#1 among new 4/5 ✓** · found 5/5 · top-5 2/5 · 1 false alarm | same 5 planted leaks, seed 7 |
-| Nov 26, 2026 | prompt v1 · gemini-3.6-flash / 3.1-flash-lite | 0 made-up numbers in 5 briefs | E3, E5 pending (quota) · rubric pending |
+| Nov 28, 2026 | prompt v1 · gemini-3.6-flash / 3.1-flash-lite | 0 made-up numbers in 7 briefs | rubric (8 briefs) pending |

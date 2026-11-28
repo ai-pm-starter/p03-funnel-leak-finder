@@ -1,0 +1,264 @@
+{
+ "input": {
+  "shop": "Google Merchandise Store (Google's online shop for branded merchandise), GA4 sample data, revenue in USD",
+  "date_range": "2020-11-01 to 2021-01-31",
+  "funnel": [
+   {
+    "step": "visit",
+    "sessions": "360,129"
+   },
+   {
+    "step": "view item",
+    "sessions": "77,318",
+    "of_previous_step": "21.5%"
+   },
+   {
+    "step": "add to cart",
+    "sessions": "20,338",
+    "of_previous_step": "26.3%"
+   },
+   {
+    "step": "checkout",
+    "sessions": "11,112",
+    "of_previous_step": "54.6%"
+   },
+   {
+    "step": "payment info",
+    "sessions": "6,818",
+    "of_previous_step": "61.4%"
+   },
+   {
+    "step": "purchase",
+    "sessions": "4,656",
+    "of_previous_step": "68.3%"
+   }
+  ],
+  "leaks": [
+   {
+    "id": "L1",
+    "segment": "new",
+    "segment_type": "visitor",
+    "step": "checkout → payment info",
+    "segment_conversion": "43.9%",
+    "rest_of_shop_conversion": "81.7%",
+    "sessions_entering_step": "5,976",
+    "segment_share_of_all_visits": "72.5%",
+    "lost_purchases": "1,468",
+    "lost_revenue": "$100.6k"
+   },
+   {
+    "id": "L2",
+    "segment": "new",
+    "segment_type": "visitor",
+    "step": "view item → add to cart",
+    "segment_conversion": "22.3%",
+    "rest_of_shop_conversion": "34.7%",
+    "sessions_entering_step": "52,232",
+    "segment_share_of_all_visits": "72.5%",
+    "lost_purchases": "947",
+    "lost_revenue": "$64.9k"
+   },
+   {
+    "id": "L3",
+    "segment": "new",
+    "segment_type": "visitor",
+    "step": "visit → view item",
+    "segment_conversion": "20.0%",
+    "rest_of_shop_conversion": "25.4%",
+    "sessions_entering_step": "261,238",
+    "segment_share_of_all_visits": "72.5%",
+    "lost_purchases": "459",
+    "lost_revenue": "$31.4k"
+   },
+   {
+    "id": "L4",
+    "segment": "new",
+    "segment_type": "visitor",
+    "step": "add to cart → checkout",
+    "segment_conversion": "51.3%",
+    "rest_of_shop_conversion": "59.1%",
+    "sessions_entering_step": "11,644",
+    "segment_share_of_all_visits": "72.5%",
+    "lost_purchases": "258",
+    "lost_revenue": "$17.7k"
+   },
+   {
+    "id": "L5",
+    "segment": "desktop × direct",
+    "segment_type": "device × channel",
+    "step": "payment info → purchase",
+    "segment_conversion": "49.3%",
+    "rest_of_shop_conversion": "71.1%",
+    "sessions_entering_step": "866",
+    "segment_share_of_all_visits": "13.5%",
+    "lost_purchases": "188",
+    "lost_revenue": "$14.3k"
+   }
+  ]
+ },
+ "result": {
+  "report": {
+   "summary": "Start with L1 and L2, which represent the largest financial losses driven by new visitor friction at checkout and product view steps. Next, address L3 and L4 to improve early funnel discovery and cart progression for new visitors, followed by L5 to resolve final payment drop-offs for desktop direct traffic.",
+   "leaks": [
+    {
+     "id": "L1",
+     "headline": "New visitors convert at 43.9% from checkout to payment info, much lower than rest of shop.",
+     "what_is_happening": "With 5,976 sessions entering this step, new visitors convert at 43.9% compared to 81.7% for the rest of the shop. This leak accounts for 1,468 lost purchases and $100.6k in lost revenue.",
+     "likely_causes": [
+      {
+       "cause": "Forced account creation at checkout step",
+       "why_plausible": "First-time buyers facing mandatory registration often abandon the process rather than create account credentials."
+      },
+      {
+       "cause": "Unexpected shipping fees revealed at checkout",
+       "why_plausible": "New visitors seeing calculated shipping costs for the first time on checkout frequently leave."
+      }
+     ],
+     "what_to_check": [
+      "Review session recordings of new visitors dropping off on the checkout page.",
+      "Inspect the checkout interface on mobile and desktop to verify if guest checkout is clearly visible."
+     ],
+     "experiments": [
+      {
+       "name": "Prominent Guest Checkout Option",
+       "hypothesis": "If we display a clear guest checkout button without requiring password creation, then conversion will increase because friction is reduced for first-time buyers.",
+       "metric": "checkout → payment info conversion for new visitors"
+      }
+     ],
+     "confidence": {
+      "level": "high",
+      "reason": "Highest lost revenue at $100.6k across 5,976 entering sessions."
+     },
+     "caveat": "Part of the gap is intent, so the lost revenue is an upper bound."
+    },
+    {
+     "id": "L2",
+     "headline": "New visitors convert at 22.3% from view item to add to cart, behind rest of shop.",
+     "what_is_happening": "Out of 52,232 sessions entering this step, new visitors convert at 22.3% while the rest of the shop converts at 34.7%. This gap results in 947 lost purchases and $64.9k in lost revenue.",
+     "likely_causes": [
+      {
+       "cause": "Missing trust signals or customer reviews on product detail pages",
+       "why_plausible": "First-time visitors who do not know the brand require extra social proof before adding products to cart."
+      },
+      {
+       "cause": "Unclear sizing details or product specifications",
+       "why_plausible": "Uncertainty about product sizing or specifications causes new shoppers to hesitate."
+      }
+     ],
+     "what_to_check": [
+      "Examine product detail page drop-off analytics for top entry products.",
+      "Run usability sessions with first-time users browsing product pages on mobile devices."
+     ],
+     "experiments": [
+      {
+       "name": "Product Page Trust Badges and Reviews",
+       "hypothesis": "If we display customer review scores and brand authenticity badges on product pages, then new visitors will add items to cart more frequently because trust is established early.",
+       "metric": "view item → add to cart conversion for new visitors"
+      }
+     ],
+     "confidence": {
+      "level": "high",
+      "reason": "Substantial impact with 52,232 sessions entering and $64.9k in lost revenue."
+     },
+     "caveat": "Part of the gap is intent, so the lost revenue is an upper bound."
+    },
+    {
+     "id": "L3",
+     "headline": "New visitors convert at 20.0% from visit to view item versus 25.4% for rest of shop.",
+     "what_is_happening": "Across 261,238 entering sessions, new visitors convert at 20.0% from visit to view item compared to 25.4% for the rest of the shop. This leads to 459 lost purchases and $31.4k in lost revenue.",
+     "likely_causes": [
+      {
+       "cause": "Confusing homepage landing navigation for first-time shoppers",
+       "why_plausible": "New visitors arriving on general entry pages may struggle to find top category links quickly."
+      },
+      {
+       "cause": "Slow page load speed on landing pages",
+       "why_plausible": "First-time arrivals have low patience for slow initial assets and exit before viewing items."
+      }
+     ],
+     "what_to_check": [
+      "Review landing page bounce rates for new visitors in GA4 reports.",
+      "Test page load performance on key entry pages across mobile and desktop."
+     ],
+     "experiments": [
+      {
+       "name": "Featured Category Banners on Landing Pages",
+       "hypothesis": "If we feature prominent category navigation cards on main entry pages, then new visitors will reach product view pages faster because paths are clearer.",
+       "metric": "visit → view item conversion for new visitors"
+      }
+     ],
+     "confidence": {
+      "level": "medium",
+      "reason": "High session count of 261,238, though individual conversion difference is relatively small."
+     },
+     "caveat": "Part of the gap is intent, so the lost revenue is an upper bound."
+    },
+    {
+     "id": "L4",
+     "headline": "New visitors convert at 51.3% from add to cart to checkout versus 59.1% shop average.",
+     "what_is_happening": "With 11,644 sessions entering this step, new visitors convert at 51.3% compared to 59.1% for the rest of the shop. This gap causes 258 lost purchases and $17.7k in lost revenue.",
+     "likely_causes": [
+      {
+       "cause": "Lack of visual feedback after adding items to cart",
+       "why_plausible": "New users might not realize an item was successfully added or where to proceed to checkout."
+      },
+      {
+       "cause": "Unclear shipping thresholds inside the cart view",
+       "why_plausible": "First-time buyers abandon cart when shipping incentives or total costs are ambiguous."
+      }
+     ],
+     "what_to_check": [
+      "Inspect cart drawer interaction recordings for new visitors.",
+      "Verify cart page layout on mobile devices to confirm checkout call-to-action visibility."
+     ],
+     "experiments": [
+      {
+       "name": "Cart Slide-out with Shipping Threshold Indicator",
+       "hypothesis": "If we introduce an automatic cart drawer showing progress toward free shipping, then new visitors will move to checkout faster because cart status and value are clear.",
+       "metric": "add to cart → checkout conversion for new visitors"
+      }
+     ],
+     "confidence": {
+      "level": "medium",
+      "reason": "Moderate financial impact of $17.7k lost revenue with direct optimization targets in cart view."
+     },
+     "caveat": "Part of the gap is intent, so the lost revenue is an upper bound."
+    },
+    {
+     "id": "L5",
+     "headline": "Desktop direct users convert at 49.3% from payment info to purchase versus 71.1% shop average.",
+     "what_is_happening": "Entering with 866 sessions, desktop direct visitors convert at 49.3% from payment info to purchase, compared to 71.1% for the rest of the shop. This results in 188 lost purchases and $14.3k in lost revenue.",
+     "likely_causes": [
+      {
+       "cause": "Payment gateway processing errors on specific desktop browsers",
+       "why_plausible": "Direct desktop users may encounter unhandled script errors or payment card validation failures during final checkout submission."
+      },
+      {
+       "cause": "Missing express payment options like digital wallets on desktop",
+       "why_plausible": "Shoppers accessing directly on desktop expect quick payment options and exit if forced to manually enter card numbers."
+      }
+     ],
+     "what_to_check": [
+      "Check payment gateway error logs filtered by desktop browser type for direct traffic.",
+      "Perform test purchases on desktop using direct navigation pathways."
+     ],
+     "experiments": [
+      {
+       "name": "Desktop Express Checkout Buttons",
+       "hypothesis": "If we integrate one-click express payment methods on the payment step for desktop users, then payment conversion will increase because checkout friction is reduced.",
+       "metric": "payment info → purchase conversion for desktop × direct"
+      }
+     ],
+     "confidence": {
+      "level": "high",
+      "reason": "High step drop-off severity with $14.3k lost revenue despite a low entering volume of 866 sessions."
+     },
+     "caveat": "none"
+    }
+   ]
+  },
+  "unverified": [],
+  "seconds": 88.6,
+  "model": "gemini-3.6-flash"
+ }
+}

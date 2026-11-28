@@ -1,0 +1,264 @@
+{
+ "input": {
+  "shop": "Google Merchandise Store (Google's online shop for branded merchandise), GA4 sample data, revenue in USD",
+  "date_range": "2020-11-01 to 2021-01-31",
+  "funnel": [
+   {
+    "step": "visit",
+    "sessions": "360,129"
+   },
+   {
+    "step": "view item",
+    "sessions": "77,318",
+    "of_previous_step": "21.5%"
+   },
+   {
+    "step": "add to cart",
+    "sessions": "20,338",
+    "of_previous_step": "26.3%"
+   },
+   {
+    "step": "checkout",
+    "sessions": "10,712",
+    "of_previous_step": "52.7%"
+   },
+   {
+    "step": "payment info",
+    "sessions": "6,546",
+    "of_previous_step": "61.1%"
+   },
+   {
+    "step": "purchase",
+    "sessions": "4,645",
+    "of_previous_step": "71.0%"
+   }
+  ],
+  "leaks": [
+   {
+    "id": "L1",
+    "segment": "new",
+    "segment_type": "visitor",
+    "step": "checkout → payment info",
+    "segment_conversion": "43.7%",
+    "rest_of_shop_conversion": "81.5%",
+    "sessions_entering_step": "5,775",
+    "segment_share_of_all_visits": "72.5%",
+    "lost_purchases": "1,477",
+    "lost_revenue": "$101.7k"
+   },
+   {
+    "id": "L2",
+    "segment": "new",
+    "segment_type": "visitor",
+    "step": "view item → add to cart",
+    "segment_conversion": "22.3%",
+    "rest_of_shop_conversion": "34.7%",
+    "sessions_entering_step": "52,232",
+    "segment_share_of_all_visits": "72.5%",
+    "lost_purchases": "948",
+    "lost_revenue": "$65.3k"
+   },
+   {
+    "id": "L3",
+    "segment": "new",
+    "segment_type": "visitor",
+    "step": "visit → view item",
+    "segment_conversion": "20.0%",
+    "rest_of_shop_conversion": "25.4%",
+    "sessions_entering_step": "261,238",
+    "segment_share_of_all_visits": "72.5%",
+    "lost_purchases": "460",
+    "lost_revenue": "$31.6k"
+   },
+   {
+    "id": "L4",
+    "segment": "new",
+    "segment_type": "visitor",
+    "step": "add to cart → checkout",
+    "segment_conversion": "49.6%",
+    "rest_of_shop_conversion": "56.8%",
+    "sessions_entering_step": "11,644",
+    "segment_share_of_all_visits": "72.5%",
+    "lost_purchases": "248",
+    "lost_revenue": "$17.1k"
+   },
+   {
+    "id": "L5",
+    "segment": "India",
+    "segment_type": "country",
+    "step": "add to cart → checkout",
+    "segment_conversion": "32.2%",
+    "rest_of_shop_conversion": "54.7%",
+    "sessions_entering_step": "1,874",
+    "segment_share_of_all_visits": "9.4%",
+    "lost_purchases": "173",
+    "lost_revenue": "$14.4k"
+   }
+  ]
+ },
+ "result": {
+  "report": {
+   "summary": "Focus first on L1 (checkout to payment info for new visitors), which accounts for the largest impact at $101.7k in lost revenue with a severe conversion drop. Next, address L2 ($65.3k lost revenue) to stop drop-offs on product pages, followed by L3 ($31.6k), L4 ($17.1k), and L5 ($14.4k). Prioritizing L1 and L2 addresses the vast majority of identified lost revenue.",
+   "leaks": [
+    {
+     "id": "L1",
+     "headline": "New visitors drop off heavily at checkout to payment info, converting at 43.7% compared to 81.5% for others.",
+     "what_is_happening": "Out of 5,775 sessions entering this step, new visitors convert at 43.7% while the rest convert at 81.5%. This gap accounts for 1,477 lost purchases and $101.7k in lost revenue.",
+     "likely_causes": [
+      {
+       "cause": "Forced account registration during checkout.",
+       "why_plausible": "First-time buyers often abandon checkout when forced to create an account and password before entering payment details."
+      },
+      {
+       "cause": "Unexpected shipping fees revealed right before payment.",
+       "why_plausible": "New visitors unfamiliar with store policies abandon when extra shipping costs appear at the payment setup step."
+      }
+     ],
+     "what_to_check": [
+      "Review session recordings of new visitors dropping off on the checkout screen before the payment step.",
+      "Inspect form field error logs on the shipping address and account creation steps for desktop vs mobile users."
+     ],
+     "experiments": [
+      {
+       "name": "Prominent Guest Checkout Option",
+       "hypothesis": "If we offer an explicit guest checkout option without mandatory account creation, then checkout to payment info conversion for new visitors will increase, because first-time buyers encounter lower friction.",
+       "metric": "checkout → payment info conversion for new visitors"
+      }
+     ],
+     "confidence": {
+      "level": "high",
+      "reason": "This leak carries the highest lost revenue at $101.7k and shows a dramatic gap compared to returning visitors."
+     },
+     "caveat": "Part of the conversion gap is due to lower purchase intent among new visitors, so the lost revenue of $101.7k represents an upper bound."
+    },
+    {
+     "id": "L2",
+     "headline": "New visitors convert significantly worse from view item to add to cart, hitting 22.3% versus 34.7% rest of shop.",
+     "what_is_happening": "With 52,232 sessions entering the item viewing stage, new visitors convert at 22.3% compared to 34.7% for the rest of the shop. This gap leads to 948 lost purchases and $65.3k in lost revenue.",
+     "likely_causes": [
+      {
+       "cause": "Lack of social proof and trust signals on product pages.",
+       "why_plausible": "First-time visitors who do not know the brand need customer reviews, rating badges, and clear return policies to feel confident adding items to cart."
+      },
+      {
+       "cause": "Poor call-to-action visibility or sizing info on mobile screens.",
+       "why_plausible": "First-time users on smaller devices may struggle to find the add-to-cart button or clear size guides."
+      }
+     ],
+     "what_to_check": [
+      "Test top product detail pages on popular mobile devices to verify add-to-cart button visibility and page load speeds.",
+      "Analyze heatmap data for new visitors on product pages to see if they reach ratings, reviews, and stock information."
+     ],
+     "experiments": [
+      {
+       "name": "Sticky Add-to-Cart and Social Proof Badges",
+       "hypothesis": "If we display sticky add-to-cart buttons on mobile along with customer review summaries, then view item to add to cart conversion for new visitors will increase, because trust is established faster and action is effortless.",
+       "metric": "view item → add to cart conversion for new visitors"
+      }
+     ],
+     "confidence": {
+      "level": "high",
+      "reason": "It involves a massive volume of 52,232 sessions and accounts for $65.3k in lost revenue."
+     },
+     "caveat": "Part of the conversion gap is due to lower purchase intent among new visitors, so the lost revenue of $65.3k represents an upper bound."
+    },
+    {
+     "id": "L3",
+     "headline": "New visitors convert lower from visit to view item at 20.0% compared to 25.4% for the rest of shop.",
+     "what_is_happening": "Across 261,238 entering sessions, new visitors reach item views at 20.0% versus 25.4% for the rest of the shop. This results in 460 lost purchases and $31.6k in lost revenue.",
+     "likely_causes": [
+      {
+       "cause": "Homepage hero content does not highlight popular merchandise clear enough.",
+       "why_plausible": "First-time visitors arriving on general pages bounce or leave if top product categories are not immediately visible above the fold."
+      },
+      {
+       "cause": "Slow page load performance for first-time visitors on mobile networks.",
+       "why_plausible": "New users without cached assets bounce quickly if landing page media load slowly."
+      }
+     ],
+     "what_to_check": [
+      "Check landing page bounce rates for new visitors segmented by entry URL and acquisition channel.",
+      "Run a mobile performance audit on the homepage to verify render times for uncached first visits."
+     ],
+     "experiments": [
+      {
+       "name": "Featured Best-Sellers Grid on Homepage",
+       "hypothesis": "If we place a clear grid of top-selling products near the top of the homepage, then visit to view item conversion for new visitors will increase, because first-time visitors quickly find appealing products.",
+       "metric": "visit → view item conversion for new visitors"
+      }
+     ],
+     "confidence": {
+      "level": "medium",
+      "reason": "Although session volume is huge at 261,238, the conversion gap is narrower and lost revenue is $31.6k."
+     },
+     "caveat": "Part of the conversion gap is due to lower purchase intent among new visitors, so the lost revenue of $31.6k represents an upper bound."
+    },
+    {
+     "id": "L4",
+     "headline": "New visitors drop moving from add to cart to checkout, converting at 49.6% versus 56.8% for other visitors.",
+     "what_is_happening": "Among 11,644 sessions reaching cart, new visitors convert to checkout at 49.6% compared to 56.8% for the rest of the shop. This results in 248 lost purchases and $17.1k in lost revenue.",
+     "likely_causes": [
+      {
+       "cause": "Unclear shipping thresholds or tax estimates in the cart view.",
+       "why_plausible": "First-time buyers hesitate to move to checkout when total costs or free-shipping qualifications are ambiguous."
+      },
+      {
+       "cause": "Subtle mini-cart notifications that fail to guide users to checkout.",
+       "why_plausible": "New users might miss slide-out cart alerts after adding items and wander off without proceeding to checkout."
+      }
+     ],
+     "what_to_check": [
+      "Review click rates on the main checkout CTA button inside the cart drawer for first-time visitors.",
+      "Watch session recordings of new visitors who add items to the cart but abandon before clicking checkout."
+     ],
+     "experiments": [
+      {
+       "name": "Cart Free-Shipping Progress Tracker",
+       "hypothesis": "If we display a dynamic progress bar for free shipping in the cart, then add to cart to checkout conversion for new visitors will increase, because shoppers are incentivized to start checkout.",
+       "metric": "add to cart → checkout conversion for new visitors"
+      }
+     ],
+     "confidence": {
+      "level": "medium",
+      "reason": "The lost revenue ($17.1k) is lower than L1 and L2, but the step is close to bottom-funnel purchase completion."
+     },
+     "caveat": "Part of the conversion gap is due to lower purchase intent among new visitors, so the lost revenue of $17.1k represents an upper bound."
+    },
+    {
+     "id": "L5",
+     "headline": "Visitors from India drop severely from add to cart to checkout, converting at 32.2% versus 54.7% storewide.",
+     "what_is_happening": "Out of 1,874 sessions entering cart, visitors from India convert to checkout at 32.2% while the rest convert at 54.7%. This gap causes 173 lost purchases and $14.4k in lost revenue.",
+     "likely_causes": [
+      {
+       "cause": "High international shipping rates revealed upon moving toward checkout.",
+       "why_plausible": "Cross-border visitors from India abandon carts when presented with steep cross-border shipping fees or currency conversions."
+      },
+      {
+       "cause": "Lack of region-specific localized payment notices or duty explanations.",
+       "why_plausible": "Shoppers in India hesitate if localized payment methods or clear customs details are missing from cart summaries."
+      }
+     ],
+     "what_to_check": [
+      "Simulate the cart-to-checkout flow using a VPN set to India to review displayed shipping options and fees.",
+      "Check cart interaction analytics for visitors from India to see drop-off rates near localized shipping notices."
+     ],
+     "experiments": [
+      {
+       "name": "Localized International Shipping & Duty Estimate in Cart",
+       "hypothesis": "If we display clear localized shipping rates and duty information in the cart for visitors from India, then add to cart to checkout conversion for India visitors will increase, because unexpected fee shock is removed.",
+       "metric": "add to cart → checkout conversion for India visitors"
+      }
+     ],
+     "confidence": {
+      "level": "medium",
+      "reason": "The conversion gap is severe (32.2% vs 54.7%), though total lost revenue ($14.4k) is limited by lower session volume."
+     },
+     "caveat": "none"
+    }
+   ]
+  },
+  "unverified": [],
+  "seconds": 69.5,
+  "model": "gemini-3.6-flash"
+ }
+}
